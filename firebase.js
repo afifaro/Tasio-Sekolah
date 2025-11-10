@@ -13,12 +13,12 @@ import {
   getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
 
-// 🔥 Konfigurasi proyek kamu
+// 🔥 Konfigurasi Firebase kamu
 const firebaseConfig = {
   apiKey: "AIzaSyD6h40vY7anmvLPHwnL-zQFGYmHvXXFvhA",
   authDomain: "tabungasiswa.firebaseapp.com",
   projectId: "tabungasiswa",
-  storageBucket: "tabungasiswa.firebasestorage.app",
+  storageBucket: "tabungasiswa.appspot.com", // ✅ diperbaiki (tanpa .app)
   messagingSenderId: "419761759477",
   appId: "1:419761759477:web:3d38545ab3b7b06e8f11bc",
   measurementId: "G-E0FD1K3QB3",
@@ -35,14 +35,14 @@ export async function tambahSekolah(nama, quote, kontakAdmin, fileLogo) {
     const id = nama.toLowerCase().replace(/\s+/g, "-");
     let logoUrl = "";
 
-    // Jika user memilih file logo, upload dulu ke Firebase Storage
+    // ✅ Upload file logo (jika ada)
     if (fileLogo) {
       const storageRef = ref(storage, `logo_sekolah/${id}.png`);
       const snapshot = await uploadBytes(storageRef, fileLogo);
       logoUrl = await getDownloadURL(snapshot.ref);
     }
 
-    // Simpan data ke Firestore
+    // ✅ Simpan data sekolah
     await addDoc(collection(db, "sekolah"), {
       id,
       nama,
@@ -52,10 +52,10 @@ export async function tambahSekolah(nama, quote, kontakAdmin, fileLogo) {
       createdAt: new Date().toISOString(),
     });
 
-    alert("✅ Sekolah berhasil ditambahkan!");
+    console.log("✅ Sekolah berhasil ditambahkan:", nama);
   } catch (e) {
     console.error("❌ Gagal menambah sekolah:", e);
-    alert("Terjadi kesalahan saat menambah sekolah. Periksa console log.");
+    throw e;
   }
 }
 
@@ -63,6 +63,11 @@ export async function tambahSekolah(nama, quote, kontakAdmin, fileLogo) {
 export async function ambilDaftarSekolah() {
   const querySnapshot = await getDocs(collection(db, "sekolah"));
   const data = [];
-  querySnapshot.forEach((doc) => data.push(doc.data()));
+
+  querySnapshot.forEach((doc) => {
+    data.push({ id: doc.id, ...doc.data() }); // ✅ doc.id disertakan
+  });
+
+  console.log("📥 Sekolah berhasil dimuat:", data.length);
   return data;
 }
