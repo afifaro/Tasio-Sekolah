@@ -7,9 +7,11 @@
 <button id="btnTambahSekolah">➕ Tambah Sekolah</button>
 
 <div id="formTambah" style="display:none; margin-top:20px;">
-  <input type="text" id="namaSekolah" placeholder="Nama Sekolah">
-  <input type="text" id="quoteSekolah" placeholder="Quote Motivasi">
-  <input type="text" id="kontakAdmin" placeholder="Nomor WA Admin (628...)">
+  <input type="text" id="namaSekolah" placeholder="Nama Sekolah"><br>
+  <input type="text" id="quoteSekolah" placeholder="Quote Motivasi"><br>
+  <input type="text" id="kontakAdmin" placeholder="Nomor WA Admin (628...)"><br>
+  <label>Pilih Logo Sekolah:</label>
+  <input type="file" id="logoSekolah" accept="image/*"><br>
   <button id="simpanSekolah">Simpan</button>
 </div>
 
@@ -26,17 +28,23 @@ document.getElementById('simpanSekolah').onclick = async () => {
   const nama = document.getElementById('namaSekolah').value;
   const quote = document.getElementById('quoteSekolah').value;
   const kontak = document.getElementById('kontakAdmin').value;
+  const fileLogo = document.getElementById('logoSekolah').files[0];
   if (!nama || !quote || !kontak) return alert('Lengkapi semua data!');
-  await tambahSekolah(nama, quote, kontak);
+  await tambahSekolah(nama, quote, kontak, fileLogo);
   location.reload();
 };
 
 // Ambil daftar sekolah dari Firestore
 (async () => {
   const data = await ambilDaftarSekolah();
-  daftar.innerHTML = data.map(s =>
-    `<p><a href="school.html?school=${s.id}">${s.nama}</a> — ${s.quote}</p>`
-  ).join('');
+  daftar.innerHTML = data.map(s => `
+    <div style="border:1px solid #ddd; padding:10px; margin:10px; border-radius:8px;">
+      ${s.logoUrl ? `<img src="${s.logoUrl}" alt="${s.nama}" style="height:60px;"><br>` : ""}
+      <b>${s.nama}</b><br>
+      <small>${s.quote}</small><br>
+      <a href="school.html?school=${s.id}">Buka halaman sekolah →</a>
+    </div>
+  `).join('');
 })();
 </script>
 <header class="topbar"><div class="branding"><img src="assets/logo.png" alt="logo"><h1>Tasio - Pilih Sekolah</h1></div></header><main class="container"><section class="card"><h2>Daftar Sekolah</h2><ul id="schoolList"></ul><hr/><h3>Tambah Sekolah (Admin Pusat)</h3><form id="addSchoolForm"><label>Id Sekolah (slug): <input id="schoolId" required placeholder="sdn-nagreg-05"></label><label>Nama Sekolah: <input id="schoolName" required placeholder="SDN NAGREG 05"></label><button type="submit">Tambah Sekolah</button></form><p class="hint">Setelah menambah, klik nama sekolah untuk membuka halaman sekolah (link unik).</p></section></main><script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script><script src="firebase.js"></script><script src="landing.js"></script></body></html>
