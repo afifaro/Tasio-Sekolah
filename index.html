@@ -1,4 +1,42 @@
 <!doctype html>
 <html lang="id">
 <head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Tasio - Daftar Sekolah</title><link rel="stylesheet" href="style.css"><meta name="theme-color" content="#007bff" id="metaThemeColor"/></head>
-<body><header class="topbar"><div class="branding"><img src="assets/logo.png" alt="logo"><h1>Tasio - Pilih Sekolah</h1></div></header><main class="container"><section class="card"><h2>Daftar Sekolah</h2><ul id="schoolList"></ul><hr/><h3>Tambah Sekolah (Admin Pusat)</h3><form id="addSchoolForm"><label>Id Sekolah (slug): <input id="schoolId" required placeholder="sdn-nagreg-05"></label><label>Nama Sekolah: <input id="schoolName" required placeholder="SDN NAGREG 05"></label><button type="submit">Tambah Sekolah</button></form><p class="hint">Setelah menambah, klik nama sekolah untuk membuka halaman sekolah (link unik).</p></section></main><script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script><script src="firebase.js"></script><script src="landing.js"></script></body></html>
+<body><h1>Daftar Sekolah</h1>
+<div id="daftarSekolah"></div>
+
+<button id="btnTambahSekolah">➕ Tambah Sekolah</button>
+
+<div id="formTambah" style="display:none; margin-top:20px;">
+  <input type="text" id="namaSekolah" placeholder="Nama Sekolah">
+  <input type="text" id="quoteSekolah" placeholder="Quote Motivasi">
+  <input type="text" id="kontakAdmin" placeholder="Nomor WA Admin (628...)">
+  <button id="simpanSekolah">Simpan</button>
+</div>
+
+<script type="module">
+import { tambahSekolah, ambilDaftarSekolah } from './firebase.js';
+
+const daftar = document.getElementById('daftarSekolah');
+const form = document.getElementById('formTambah');
+const btnTambah = document.getElementById('btnTambahSekolah');
+
+btnTambah.onclick = () => form.style.display = form.style.display === 'none' ? 'block' : 'none';
+
+document.getElementById('simpanSekolah').onclick = async () => {
+  const nama = document.getElementById('namaSekolah').value;
+  const quote = document.getElementById('quoteSekolah').value;
+  const kontak = document.getElementById('kontakAdmin').value;
+  if (!nama || !quote || !kontak) return alert('Lengkapi semua data!');
+  await tambahSekolah(nama, quote, kontak);
+  location.reload();
+};
+
+// Ambil daftar sekolah dari Firestore
+(async () => {
+  const data = await ambilDaftarSekolah();
+  daftar.innerHTML = data.map(s =>
+    `<p><a href="school.html?school=${s.id}">${s.nama}</a> — ${s.quote}</p>`
+  ).join('');
+})();
+</script>
+<header class="topbar"><div class="branding"><img src="assets/logo.png" alt="logo"><h1>Tasio - Pilih Sekolah</h1></div></header><main class="container"><section class="card"><h2>Daftar Sekolah</h2><ul id="schoolList"></ul><hr/><h3>Tambah Sekolah (Admin Pusat)</h3><form id="addSchoolForm"><label>Id Sekolah (slug): <input id="schoolId" required placeholder="sdn-nagreg-05"></label><label>Nama Sekolah: <input id="schoolName" required placeholder="SDN NAGREG 05"></label><button type="submit">Tambah Sekolah</button></form><p class="hint">Setelah menambah, klik nama sekolah untuk membuka halaman sekolah (link unik).</p></section></main><script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script><script src="firebase.js"></script><script src="landing.js"></script></body></html>
